@@ -1,0 +1,31 @@
+specVersion: 0.0.2
+description: Sashimiswap is a decentralized protocol for automated token exchange on Ethereum.
+repository: https://github.com/SashimiProject/sashimi-swap-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: SASHIMI
+    network: mainnet
+    source:
+      address: '0xc28e27870558cf22add83540d2126da2e4b464c2'
+      abi: ERC20
+      startBlock: 10826864
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/transfer.ts
+      entities:
+        - Pair
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
