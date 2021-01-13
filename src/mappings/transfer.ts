@@ -1,19 +1,19 @@
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import {Address, BigInt} from '@graphprotocol/graph-ts';
+import {Transfer as TransferEvent} from "../types/SASHIMI/ERC20";
+import {RewardPaid, Staked, Withdrawn} from '../types/VaultDAI/DForce';
+import {UNIPool} from '../types/VaultUNIDAI/UNIPool';
+import {Token, TransferDayData, TransferHourData, VaultInfo} from "../types/schema";
 import {
-  Transfer as TransferEvent
-} from "../types/SASHIMI/ERC20";
-import {
-  TransferDayData,
-  TransferHourData,
-  Transfer
-} from "../types/schema";
-import {
+  addToken,
+  addTransaction,
+  convertTokenToDecimal,
+  ONE_BI,
+  getDepositToken,
+  getEarnToken,
+  getUserAddress,
   ZERO_BD,
   ZERO_BI,
-  ONE_BI,
-  convertTokenToDecimal,
-  addToken,
-  addTransaction
+  ADDRESS_ZERO
 } from "./helper";
 
 function updateUniswapDayData(event: TransferEvent, tokenAddress: Address, decimals: BigInt): void {
@@ -66,11 +66,4 @@ export function handleTransfer(event: TransferEvent): void {
   updateUniswapDayData(event, tokenAddress, tokenInfo.decimals);
   updateUniswapHourData(event, tokenAddress, tokenInfo.decimals);
   addTransaction(event);
-  let key = event.transaction.hash.toHexString() + '-' + event.logIndex.toString();
-  let transfer = new Transfer(key);
-  transfer.from = event.params.from;
-  transfer.to = event.params.to;
-  transfer.amount = convertTokenToDecimal(event.params.value, tokenInfo.decimals);
-  transfer.token = tokenInfo.id;
-  transfer.save();
 }

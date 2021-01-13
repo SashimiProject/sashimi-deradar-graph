@@ -9,6 +9,7 @@ type Token @entity {
 
   # used for other stats like marketcap
   totalSupply: BigDecimal!
+  burned: BigDecimal!
 }
 
 type Transaction @entity {
@@ -33,11 +34,25 @@ type TransferHourData @entity {
   txsCount: BigInt!
 }
 
-type Transfer @entity {
+type VaultInfo @entity {
+  # dforce strategy contract address
   id: ID!
-  from: Bytes!
-  to: Bytes!
-  amount: BigDecimal!
-  token: Token!
+  depositToken: Token!
+  earnToken: Token!
+  depositAmount: BigDecimal!
+  earnAmount: BigDecimal!
+}
+
+type OldInvestment @entity {
+  # profit token address
+  id: ID!
+  earnToken: Token!
+  earnAmount: BigDecimal!
+}
+
+type NewInvestment @entity {
+  id: ID!
+  earnToken: Token!
+  earnAmount: BigDecimal!
 }
 
