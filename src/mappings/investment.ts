@@ -25,14 +25,13 @@ export function handleOldHarvest(event: OldHarvestedEvent): void {
 }
 
 export function handleNewHarvest(event: NewHarvestedEvent): void {
-  event.parameters[0].value.kind = 0;
-  event.parameters[1].value.kind = 0;
   log.debug('handle new harvest 0 type ' + event.parameters[0].value.kind.toString(), []);
   log.debug('handle new harvest 1 type ' + event.parameters[1].value.kind.toString(), []);
   log.debug('handle new harvest 2 type ' + event.parameters[2].value.kind.toString(), []);
-  log.debug('handle new harvest ' + event.params.param0.toHexString(), []);
+  log.debug('handle new harvest ' + event.params.param1.toHexString(), []);
   // hack, wrong type in contract
-  let profitTokenAddress = changetype<Address>(event.parameters[1].value.data as u32);
+  // let profitTokenAddress = changetype<Address>(event.parameters[1].value.data as u32);
+  let profitTokenAddress = event.params.param1;
   let profitToken = addToken(profitTokenAddress);
   addTransaction(event);
   let harvest = NewInvestment.load(profitTokenAddress.toHexString());

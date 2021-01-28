@@ -1,4 +1,4 @@
-import {Address, BigDecimal, BigInt, json, JSONValueKind, Bytes} from '@graphprotocol/graph-ts';
+import {Address, BigDecimal, BigInt, log, TypedMap} from '@graphprotocol/graph-ts';
 import {ERC20} from "../types/SASHIMI/ERC20";
 import {ERC20SymbolBytes} from '../types/SASHIMI/ERC20SymbolBytes'
 import {ERC20NameBytes} from '../types/SASHIMI/ERC20NameBytes'
@@ -32,44 +32,71 @@ export let DAI_ADDRESS = '0x6b175474e89094c44da98b954eedeac495271d0f';
 export let USDC_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
 export let USDT_ADDRESS = '0xdac17f958d2ee523a2206206994597c13d831ec7';
 
+let depositTokens = new TypedMap<string, string>();
+depositTokens.set(DF_DAI_ADDRESS, DAI_ADDRESS);
+depositTokens.set(DF_USDC_ADDRESS, USDC_ADDRESS);
+depositTokens.set(DF_USDT_ADDRESS, USDT_ADDRESS);
+
 export function getDepositToken(address: string): string {
-  let result = ADDRESS_ZERO;
-  if (address === DF_DAI_ADDRESS) {
-    result = DAI_ADDRESS;
-  } else if (address === DF_USDC_ADDRESS) {
-    result = USDC_ADDRESS;
-  } else if (address === DF_USDT_ADDRESS) {
-    result = USDT_ADDRESS;
+  let result = depositTokens.get(address) as string;
+  if (result === null) {
+    result = ADDRESS_ZERO;
   }
   return result;
 }
+
+// export function getDepositToken(address: string): string {
+//   let result = ADDRESS_ZERO;
+//   if (address === DF_DAI_ADDRESS) {
+//     result = DAI_ADDRESS;
+//   } else if (address === DF_USDC_ADDRESS) {
+//     result = USDC_ADDRESS;
+//   } else if (address === DF_USDT_ADDRESS) {
+//     result = USDT_ADDRESS;
+//   }
+//   return result;
+// }
+
+let earnTokens = new TypedMap<string, string>();
+earnTokens.set(DF_DAI_ADDRESS, DF_ADDRESS);
+earnTokens.set(DF_USDC_ADDRESS, DF_ADDRESS);
+earnTokens.set(DF_USDT_ADDRESS, DF_ADDRESS);
+earnTokens.set(UNI_DAI_POOL_ADDRESS, UNI_ADDRESS);
+earnTokens.set(UNI_USDC_POOL_ADDRESS, UNI_ADDRESS);
+earnTokens.set(UNI_USDT_POOL_ADDRESS, UNI_ADDRESS);
+earnTokens.set(UNI_WBTC_POOL_ADDRESS, UNI_ADDRESS);
 
 export function getEarnToken(address: string): string {
-  let result = ADDRESS_ZERO;
-  if (address === DF_DAI_ADDRESS || address === DF_USDC_ADDRESS || address === DF_USDT_ADDRESS) {
-    result = DF_ADDRESS;
-  } else {
-    result = UNI_ADDRESS;
+  let result = earnTokens.get(address) as string;
+  if (result === null) {
+    result = ADDRESS_ZERO;
   }
   return result;
 }
 
+// export function getEarnToken(address: string): string {
+//   let result = ADDRESS_ZERO;
+//   if (address === DF_DAI_ADDRESS || address === DF_USDC_ADDRESS || address === DF_USDT_ADDRESS) {
+//     result = DF_ADDRESS;
+//   } else {
+//     result = UNI_ADDRESS;
+//   }
+//   return result;
+// }
+
+let userAddresses = new TypedMap<string, string>();
+userAddresses.set(DF_DAI_ADDRESS, DF_DAI_VAULT_ADDRESS);
+userAddresses.set(DF_USDC_ADDRESS, DF_USDC_VAULT_ADDRESS);
+userAddresses.set(DF_USDT_ADDRESS, DF_USDT_VAULT_ADDRESS);
+userAddresses.set(UNI_DAI_POOL_ADDRESS, UNI_DAI_VAULT_ADDRESS);
+userAddresses.set(UNI_USDC_POOL_ADDRESS, UNI_USDC_VAULT_ADDRESS);
+userAddresses.set(UNI_USDT_POOL_ADDRESS, UNI_USDT_VAULT_ADDRESS);
+userAddresses.set(UNI_WBTC_POOL_ADDRESS, UNI_WBTC_VAULT_ADDRESS);
+
 export function getUserAddress(address: string): string {
-  let result = ADDRESS_ZERO;
-  if (address === DF_DAI_ADDRESS) {
-    result = DF_DAI_VAULT_ADDRESS;
-  } else if (address === DF_USDC_ADDRESS) {
-    result = DF_USDC_VAULT_ADDRESS;
-  } else if (address === DF_USDT_ADDRESS) {
-    result = DF_USDT_VAULT_ADDRESS;
-  } else if (address === UNI_DAI_POOL_ADDRESS) {
-    result = UNI_DAI_VAULT_ADDRESS;
-  } else if (address === UNI_USDC_POOL_ADDRESS) {
-    result = UNI_USDC_VAULT_ADDRESS;
-  } else if (address === UNI_USDT_POOL_ADDRESS) {
-    result = UNI_USDT_VAULT_ADDRESS;
-  } else if (address === UNI_WBTC_POOL_ADDRESS) {
-    result = UNI_WBTC_VAULT_ADDRESS;
+  let result = userAddresses.get(address) as string;
+  if (result === null) {
+    result = ADDRESS_ZERO;
   }
   return result;
 }

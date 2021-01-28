@@ -1,4 +1,4 @@
-import {Address} from '@graphprotocol/graph-ts';
+import {Address, log} from '@graphprotocol/graph-ts';
 import {RewardPaid, Staked, Withdrawn} from '../types/VaultDAI/DForce';
 import {UNIPool} from '../types/VaultUNIDAI/UNIPool';
 import {Token, VaultInfo} from "../types/schema";
@@ -28,9 +28,10 @@ function createVaultInfo(address: Address, depositToken: Token | null, earnToken
 export function handleDFRewardPaid(event: RewardPaid): void {
   let address = event.address.toHexString();
   let user = getUserAddress(address);
+  log.error('handle df reward paid' + user, []);
   let deposit = getDepositToken(address);
   let earn = getEarnToken(address);
-  if (event.params.user.toHexString() === user && user !== ADDRESS_ZERO) {
+  if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
     let depositToken = addToken(Address.fromString(deposit));
     let earnToken = addToken(Address.fromString(earn));
     let dforce = VaultInfo.load(event.address.toHexString());
@@ -50,7 +51,7 @@ export function handleDFStaked(event: Staked): void {
   let user = getUserAddress(address);
   let deposit = getDepositToken(address);
   let earn = getEarnToken(address);
-  if (event.params.user.toHexString() === user && user !== ADDRESS_ZERO) {
+  if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
     let depositToken = addToken(Address.fromString(deposit));
     let earnToken = addToken(Address.fromString(earn));
     let dforce = VaultInfo.load(event.address.toHexString());
@@ -70,7 +71,7 @@ export function handleDFWithdrawn(event: Withdrawn): void {
   let user = getUserAddress(address);
   let deposit = getDepositToken(address);
   let earn = getEarnToken(address);
-  if (event.params.user.toHexString() === user && user !== ADDRESS_ZERO) {
+  if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
     let depositToken = addToken(Address.fromString(deposit));
     let earnToken = addToken(Address.fromString(earn));
     let dforce = VaultInfo.load(event.address.toHexString());
@@ -94,7 +95,7 @@ export function handleUNIRewardPaid(event: RewardPaid): void {
   let address = event.address.toHexString();
   let user = getUserAddress(address);
   let earn = getEarnToken(address);
-  if (event.params.user.toHexString() === user && user !== ADDRESS_ZERO) {
+  if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
     let lpTokenAddress = getLpToken(event.address);
     let depositToken = addToken(lpTokenAddress);
     let earnToken = addToken(Address.fromString(earn));
@@ -114,7 +115,7 @@ export function handleUNIStaked(event: Staked): void {
   let address = event.address.toHexString();
   let user = getUserAddress(address);
   let earn = getEarnToken(address);
-  if (event.params.user.toHexString() === user && user !== ADDRESS_ZERO) {
+  if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
     let lpTokenAddress = getLpToken(event.address);
     let depositToken = addToken(lpTokenAddress);
     let earnToken = addToken(Address.fromString(earn));
@@ -134,7 +135,7 @@ export function handleUNIWithdrawn(event: Withdrawn): void {
   let address = event.address.toHexString();
   let user = getUserAddress(address);
   let earn = getEarnToken(address);
-  if (event.params.user.toHexString() === user && user !== ADDRESS_ZERO) {
+  if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
     let lpTokenAddress = getLpToken(event.address);
     let depositToken = addToken(lpTokenAddress);
     let earnToken = addToken(Address.fromString(earn));
