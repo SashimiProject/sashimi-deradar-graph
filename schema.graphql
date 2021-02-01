@@ -56,3 +56,22 @@ type NewInvestment @entity {
   earnAmount: BigDecimal!
 }
 
+type ChefInfo @entity {
+  id: ID!
+  totalPoint: BigInt!
+  sashimiPerBlock: BigDecimal!
+  startBlock: BigInt!
+}
+
+type FarmPool @entity {
+  id: ID! # pid
+  isUni: Boolean!
+  lpToken: Token!
+  token0: Token!
+  token1: Token!
+  allocPoint: BigInt!
+  totalDeposit: BigDecimal!
+  totalDepositUSD: BigDecimal!
+  lpSupplyPercent: BigDecimal!
+  volume: BigDecimal!
+}

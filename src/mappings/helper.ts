@@ -2,6 +2,7 @@ import {Address, BigDecimal, BigInt, log, TypedMap} from '@graphprotocol/graph-t
 import {ERC20} from "../types/SASHIMI/ERC20";
 import {ERC20SymbolBytes} from '../types/SASHIMI/ERC20SymbolBytes'
 import {ERC20NameBytes} from '../types/SASHIMI/ERC20NameBytes'
+import { Pair } from "../types/SashimiFarm/Pair";
 import {Token, Transaction} from "../types/schema";
 import {ethereum} from "@graphprotocol/graph-ts/index";
 
@@ -31,6 +32,8 @@ export let DF_ADDRESS = '0x431ad2ff6a9c365805ebad47ee021148d6f7dbe0';
 export let DAI_ADDRESS = '0x6b175474e89094c44da98b954eedeac495271d0f';
 export let USDC_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
 export let USDT_ADDRESS = '0xdac17f958d2ee523a2206206994597c13d831ec7';
+export let SASHIMI_ADDRESS = '0xc28e27870558cf22add83540d2126da2e4b464c2';
+export let WETH_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
 
 let depositTokens = new TypedMap<string, string>();
 depositTokens.set(DF_DAI_ADDRESS, DAI_ADDRESS);
@@ -44,18 +47,6 @@ export function getDepositToken(address: string): string {
   }
   return result;
 }
-
-// export function getDepositToken(address: string): string {
-//   let result = ADDRESS_ZERO;
-//   if (address === DF_DAI_ADDRESS) {
-//     result = DAI_ADDRESS;
-//   } else if (address === DF_USDC_ADDRESS) {
-//     result = USDC_ADDRESS;
-//   } else if (address === DF_USDT_ADDRESS) {
-//     result = USDT_ADDRESS;
-//   }
-//   return result;
-// }
 
 let earnTokens = new TypedMap<string, string>();
 earnTokens.set(DF_DAI_ADDRESS, DF_ADDRESS);
@@ -74,16 +65,6 @@ export function getEarnToken(address: string): string {
   return result;
 }
 
-// export function getEarnToken(address: string): string {
-//   let result = ADDRESS_ZERO;
-//   if (address === DF_DAI_ADDRESS || address === DF_USDC_ADDRESS || address === DF_USDT_ADDRESS) {
-//     result = DF_ADDRESS;
-//   } else {
-//     result = UNI_ADDRESS;
-//   }
-//   return result;
-// }
-
 let userAddresses = new TypedMap<string, string>();
 userAddresses.set(DF_DAI_ADDRESS, DF_DAI_VAULT_ADDRESS);
 userAddresses.set(DF_USDC_ADDRESS, DF_USDC_VAULT_ADDRESS);
@@ -101,9 +82,57 @@ export function getUserAddress(address: string): string {
   return result;
 }
 
+let STABLE_TOKEN_ADDRESSES = new TypedMap<string, string>();
+STABLE_TOKEN_ADDRESSES.set(DAI_ADDRESS, DAI_ADDRESS);
+STABLE_TOKEN_ADDRESSES.set(USDT_ADDRESS, USDT_ADDRESS);
+STABLE_TOKEN_ADDRESSES.set(USDC_ADDRESS, USDC_ADDRESS);
+export let stableTokens = STABLE_TOKEN_ADDRESSES;
+
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
 export let ZERO_BD = BigDecimal.fromString('0')
+export let BI_18 = BigInt.fromI32(18);
+export let BI_2 = BigInt.fromI32(2);
+
+export let UNI_ROUTER = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f';
+export let SASHIMI_ROUTER = '0xf028f723ed1d0fe01cc59973c49298aa95c57472';
+
+// WETH-USDT
+let SASHIMI_WETH_USDT_ADDRESS = '0x490ccb3c835597ff31e525262235487f9426312b';
+// WETH-USDT
+let UNISWAP_WETH_USDT_ADDRESS = '0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852';
+// WETH-SASHIMI
+let SASHIMI_WETH_SASHIMI_ADDRESS = '0x3fa4b0b3053413684d0b658689ede7907bb4d69d';
+// WETH-SASHIMI
+let UNISWAP_WETH_SASHIMI_ADDRESS = '0x4b618087dae7765823bc47ffbf38c8ee8489f5ca';
+
+export function getEthPrice(): BigDecimal {
+  let contract = Pair.bind(Address.fromString(UNISWAP_WETH_USDT_ADDRESS));
+  let resp = contract.try_getReserves();
+  let result = ZERO_BD;
+  if (resp.reverted) {
+    return result;
+  }
+  let reserve0 = convertTokenToDecimal(resp.value.value0, BigInt.fromI32(18));
+  let reserve1 = convertTokenToDecimal(resp.value.value1, BigInt.fromI32(6));
+  return reserve1.div(reserve0);
+}
+
+export function getSashimiPrice(): BigDecimal {
+  let ethPrice = getEthPrice();
+  let contract = Pair.bind(Address.fromString(UNISWAP_WETH_SASHIMI_ADDRESS));
+  let resp = contract.try_getReserves();
+  let result = ZERO_BD;
+  if (resp.reverted) {
+    return result;
+  }
+  // eth
+  let reserve0 = convertTokenToDecimal(resp.value.value0, BigInt.fromI32(18));
+  // sashimi
+  let reserve1 = convertTokenToDecimal(resp.value.value1, BigInt.fromI32(18));
+  result = reserve0.div(reserve1);
+  return result.times(ethPrice);
+}
 
 export function isNullEthValue(value: string): boolean {
   return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
