@@ -5,6 +5,223 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: VaultDAI
+    network: mainnet
+    source:
+      address: '0xd2fa07cd6cd4a5a96aa86bacfa6e50bb3aadba8b'
+      abi: DForce
+      startBlock: 11093258
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: DForce
+          file: ./abis/dForce.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleDFRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleDFStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleDFWithdrawn
+  - kind: ethereum/contract
+    name: VaultUSDC
+    network: mainnet
+    source:
+      address: '0xb71defdd6240c45746ec58314a01dd6d833fd3b5'
+      abi: DForce
+      startBlock: 11097870
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: DForce
+          file: ./abis/dForce.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleDFRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleDFStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleDFWithdrawn
+  - kind: ethereum/contract
+    name: VaultUSDT
+    network: mainnet
+    source:
+      address: '0x324eebdaa45829c6a8ee903afbc7b61af48538df'
+      abi: DForce
+      startBlock: 11097127
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: DForce
+          file: ./abis/dForce.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleDFRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleDFStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleDFWithdrawn
+  - kind: ethereum/contract
+    name: VaultUNIDAI
+    network: mainnet
+    source:
+      address: '0xa1484c3aa22a66c62b77e0ae78e15258bd0cb711'
+      abi: UNIPool
+      startBlock: 11046392
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UNIPool
+          file: ./abis/uniPool.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleUNIRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleUNIStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleUNIWithdrawn
+  - kind: ethereum/contract
+    name: VaultUNIUSDC
+    network: mainnet
+    source:
+      address: '0x7fba4b8dc5e7616e59622806932dbea72537a56b'
+      abi: UNIPool
+      startBlock: 11046824
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UNIPool
+          file: ./abis/uniPool.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleUNIRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleUNIStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleUNIWithdrawn
+  - kind: ethereum/contract
+    name: VaultUNIUSDT
+    network: mainnet
+    source:
+      address: '0x6c3e4cb2e96b01f4b866965a91ed4437839a121a'
+      abi: UNIPool
+      startBlock: 11046913
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UNIPool
+          file: ./abis/uniPool.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleUNIRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleUNIStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleUNIWithdrawn
+  - kind: ethereum/contract
+    name: VaultUNIWBTC
+    network: mainnet
+    source:
+      address: '0xca35e32e7926b96a9988f61d510e038108d8068e'
+      abi: UNIPool
+      startBlock: 11046949
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/vault.ts
+      entities:
+        - VaultInfo
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UNIPool
+          file: ./abis/uniPool.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleUNIRewardPaid
+        - event: Staked(indexed address,uint256)
+          handler: handleUNIStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleUNIWithdrawn
+  - kind: ethereum/contract
     name: SashimiFarm
     network: mainnet
     source:

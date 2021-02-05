@@ -15,8 +15,11 @@ import {
   BI_2,
   BI_18,
   getEthPrice,
-  getSashimiPrice, WETH_ADDRESS, SASHIMI_ADDRESS
+  getSashimiPrice, WETH_ADDRESS, SASHIMI_ADDRESS, fetchTokenTotalSupply, getBurned
 } from "./helper";
+import {
+  ERC20
+} from "../types/SashimiFarm/ERC20";
 import {
   ChefInfo,
   FarmPool, Token
@@ -65,14 +68,32 @@ function getStartBlock(): BigInt {
   return per;
 }
 
+function getEarned(): BigDecimal {
+  let sashimi = Token.load(SASHIMI_ADDRESS);
+  let address = Address.fromString(SASHIMI_ADDRESS)
+  if (sashimi === null) {
+    sashimi = addToken(address);
+  }
+  let totalSupply = convertTokenToDecimal(fetchTokenTotalSupply(Address.fromString(SASHIMI_ADDRESS)), BI_18);
+  let burned = getBurned(ERC20.bind(address), BI_18);
+  totalSupply = totalSupply.minus(burned);
+  let diff = totalSupply.minus(sashimi.totalSupply);
+  let price = getSashimiPrice();
+  sashimi.totalSupply = totalSupply;
+  sashimi.save();
+  return diff.times(price);
+}
+
 function updateChefInfo(): void {
   let chef = ChefInfo.load('1');
   if (chef === null) {
     chef = new ChefInfo('1');
     chef.startBlock = getStartBlock();
+    chef.totalEarned = ZERO_BD;
   }
   chef.totalPoint = getTotalPoint();
   chef.sashimiPerBlock = getSashimiPerBlock();
+  chef.totalEarned = chef.totalEarned.plus(getEarned());
   chef.save();
 }
 
@@ -111,6 +132,17 @@ function getPair(p: Address): PairToken|null {
   let token0 = resp0.value;
   let token1 = resp1.value;
   return new PairToken(token0, token1);
+}
+
+function getLpBalance(lpAddress: Address): BigDecimal {
+  let erc = ERC20.bind(lpAddress);
+  let result = ZERO_BD;
+  let resp = erc.try_balanceOf(MasterChefAddress);
+  if (resp.reverted) {
+    return result;
+  }
+  result = convertTokenToDecimal(resp.value, BI_18);
+  return result;
 }
 
 function getTotalLpValueInUsd(token0: Token, token1: Token, lpToken: Token): BigDecimal {
@@ -154,6 +186,7 @@ function getTotalLpValueInUsd(token0: Token, token1: Token, lpToken: Token): Big
 function addOrUpdateFarm(pid: BigInt, amount: BigInt, coef: BigDecimal): void {
   let pool = FarmPool.load(pid.toString());
   let info = getPoolInfo(pid);
+  let migrate = false;
   if (pool === null) {
     pool = new FarmPool(pid.toString());
     pool.totalDeposit = ZERO_BD;
@@ -161,7 +194,10 @@ function addOrUpdateFarm(pid: BigInt, amount: BigInt, coef: BigDecimal): void {
     pool.totalDepositUSD = ZERO_BD;
     pool.volume = ZERO_BD;
   } else {
-    pool.isUni = pool.isUni && info.value0.equals(Address.fromString(pool.lpToken))
+    if (pool.isUni && info.value0.notEqual(Address.fromString(pool.lpToken))) {
+      pool.isUni = false;
+      migrate = true;
+    }
   }
   if (info.value0.equals(Address.fromString(ADDRESS_ZERO))) {
     return;
@@ -179,7 +215,11 @@ function addOrUpdateFarm(pid: BigInt, amount: BigInt, coef: BigDecimal): void {
     pool.token0 = token0.id;
     pool.token1 = token1.id;
     pool.volume = pool.volume.plus(totalLpValue.times(depositPercent));
-    pool.totalDeposit = pool.totalDeposit.plus(volume.times(coef))
+    if (migrate) {
+      pool.totalDeposit = getLpBalance(Address.fromString(lpToken.id));
+    } else {
+      pool.totalDeposit = pool.totalDeposit.plus(volume);
+    }
     pool.lpSupplyPercent = pool.totalDeposit.div(lpToken.totalSupply);
     pool.totalDepositUSD = pool.lpSupplyPercent.times(totalLpValue);
     pool.save();

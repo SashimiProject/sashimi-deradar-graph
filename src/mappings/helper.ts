@@ -1,9 +1,9 @@
 import {Address, BigDecimal, BigInt, log, TypedMap} from '@graphprotocol/graph-ts';
-import {ERC20} from "../types/SASHIMI/ERC20";
-import {ERC20SymbolBytes} from '../types/SASHIMI/ERC20SymbolBytes'
-import {ERC20NameBytes} from '../types/SASHIMI/ERC20NameBytes'
-import { Pair } from "../types/SashimiFarm/Pair";
-import {Token, Transaction} from "../types/schema";
+import { ERC20 } from '../types/SashimiFarm/ERC20';
+import { ERC20SymbolBytes } from '../types/SashimiFarm/ERC20SymbolBytes';
+import {ERC20NameBytes} from '../types/SashimiFarm/ERC20NameBytes'
+import { Pair } from '../types/SashimiFarm/Pair';
+import {Token, Transaction} from '../types/schema';
 import {ethereum} from "@graphprotocol/graph-ts/index";
 
 export let ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
@@ -118,6 +118,8 @@ export function getEthPrice(): BigDecimal {
   return reserve1.div(reserve0);
 }
 
+let sashimiThreshold = BigDecimal.fromString('5000');
+
 export function getSashimiPrice(): BigDecimal {
   let ethPrice = getEthPrice();
   let contract = Pair.bind(Address.fromString(UNISWAP_WETH_SASHIMI_ADDRESS));
@@ -130,6 +132,9 @@ export function getSashimiPrice(): BigDecimal {
   let reserve0 = convertTokenToDecimal(resp.value.value0, BigInt.fromI32(18));
   // sashimi
   let reserve1 = convertTokenToDecimal(resp.value.value1, BigInt.fromI32(18));
+  if (reserve1.lt(sashimiThreshold)) {
+    return reserve1;
+  }
   result = reserve0.div(reserve1);
   return result.times(ethPrice);
 }
@@ -220,6 +225,15 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   return BigInt.fromI32(decimalValue as i32)
 }
 
+export function getBurned(contract: ERC20, decimals: BigInt): BigDecimal {
+  let burned = BigDecimal.fromString('0');
+  let resp = contract.try_balanceOf(Address.fromString(BURN_ADDRESS));
+  if (!resp.reverted) {
+    burned = convertTokenToDecimal(resp.value, decimals);
+  }
+  return burned;
+}
+
 export function addToken(token: Address): Token|null {
   let tokenInfo = Token.load(token.toHexString());
   if (tokenInfo === null && token.toHexString() != ADDRESS_ZERO){
@@ -230,11 +244,7 @@ export function addToken(token: Address): Token|null {
     tokenInfo.decimals = fetchTokenDecimals(token);
   }
   let contract = ERC20.bind(token);
-  let burned = BigDecimal.fromString('0');
-  let resp = contract.try_balanceOf(Address.fromString(BURN_ADDRESS));
-  if (!resp.reverted) {
-    burned = convertTokenToDecimal(resp.value, tokenInfo.decimals);
-  }
+  let burned = getBurned(contract, tokenInfo.decimals);
   let supply = fetchTokenTotalSupply(token);
   tokenInfo.totalSupply = convertTokenToDecimal(supply, tokenInfo.decimals);
   tokenInfo.burned = burned;

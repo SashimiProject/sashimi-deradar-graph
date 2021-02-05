@@ -28,7 +28,6 @@ function createVaultInfo(address: Address, depositToken: Token | null, earnToken
 export function handleDFRewardPaid(event: RewardPaid): void {
   let address = event.address.toHexString();
   let user = getUserAddress(address);
-  log.error('handle df reward paid' + user, []);
   let deposit = getDepositToken(address);
   let earn = getEarnToken(address);
   if (event.params.user.equals(Address.fromString(user)) && user != ADDRESS_ZERO) {
